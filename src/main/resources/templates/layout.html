@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title th:text="${pageTitle} + ' | CarbonTree'">CarbonTree</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}"/>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3/dist/chartjs-plugin-annotation.min.js"></script>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon">🌳</div>
+        <div class="brand-text">
+            <span class="brand-name">CarbonTree</span>
+            <span class="brand-sub">Sistema Ambiental</span>
+        </div>
+    </div>
+
+    <ul class="sidebar-nav">
+        <li class="nav-section-title">Principal</li>
+        <li th:classappend="${#strings.contains(#httpServletRequest.requestURI,'/dashboard')} ? 'active' : ''">
+            <a th:href="@{/dashboard}"><span class="nav-icon">📊</span><span>Dashboard KPIs</span></a>
+        </li>
+
+        <li class="nav-section-title">Gestão</li>
+        <li th:classappend="${#strings.contains(#httpServletRequest.requestURI,'/stations')} ? 'active' : ''">
+            <a th:href="@{/stations}"><span class="nav-icon">📡</span><span>Estações</span></a>
+        </li>
+        <li th:classappend="${#strings.contains(#httpServletRequest.requestURI,'/alerts')} ? 'active' : ''">
+            <a th:href="@{/alerts}" class="alert-link">
+                <span class="nav-icon">🔔</span>
+                <span>Alertas Críticos</span>
+                <span class="badge-alert" id="alert-badge">!</span>
+            </a>
+        </li>
+
+        <li class="nav-section-title">Auditoria</li>
+        <li th:classappend="${#strings.contains(#httpServletRequest.requestURI,'/reports')} ? 'active' : ''">
+            <a th:href="@{/reports}"><span class="nav-icon">📋</span><span>Relatórios</span></a>
+        </li>
+
+        <li class="nav-section-title" sec:authorize="hasRole('ADMIN')">Admin</li>
+        <li sec:authorize="hasRole('ADMIN')">
+            <a th:href="@{/h2-console}" target="_blank">
+                <span class="nav-icon">🗄️</span><span>Banco de Dados</span>
+            </a>
+        </li>
+    </ul>
+
+    <div class="sidebar-user">
+        <div class="user-avatar">
+            <span sec:authentication="name" class="user-initials">U</span>
+        </div>
+        <div class="user-info">
+            <span class="user-name" sec:authentication="name">Usuário</span>
+            <span class="user-role">Gestor Ambiental</span>
+        </div>
+        <a th:href="@{/logout}" class="logout-btn" title="Sair">⏻</a>
+    </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main-content" id="main-content">
+    <header class="topbar">
+        <button class="sidebar-toggle" onclick="toggleSidebar()" title="Toggle menu">☰</button>
+        <div class="topbar-title">
+            <h1 th:text="${pageTitle}">Página</h1>
+        </div>
+        <div class="topbar-right">
+            <div class="mqtt-status" id="mqtt-status">
+                <span class="status-dot online"></span>
+                <span class="status-text">Sistema Online</span>
+            </div>
+            <div class="clock" id="clock">--:--:--</div>
+        </div>
+    </header>
+
+    <div class="page-content">
+        <th:block th:replace="${content}"/>
+    </div>
+</main>
+
+<script>
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+    }
+    (function tick() {
+        document.getElementById('clock').textContent =
+            new Date().toLocaleTimeString('pt-BR');
+        setTimeout(tick, 1000);
+    })();
+</script>
+
+<!--
+    CORRIGIDO L101: th:replace="${scripts-extra}" causava erro porque
+    o Thymeleaf interpreta ${scripts-extra} como variável de modelo (menos aritmético).
+    A sintaxe correta para fragment dinâmico é ~{} com th:insert ou th:replace usando
+    o nome do fragment sem ${}. Usando th:block com th:replace e passando como parâmetro
+    do layout funciona corretamente desta forma:
+-->
+<th:block th:replace="~{::scripts-extra}"/>
+</body>
+</html>

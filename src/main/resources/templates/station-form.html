@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::content}, ~{::scripts-extra})}">
+<head><title>Estação</title></head>
+<body>
+<th:block th:fragment="content">
+
+    <div class="form-card">
+        <form th:action="@{/stations/save}" th:object="${station}" method="post" class="ct-form">
+            <input type="hidden" th:field="*{id}"/>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Código da Estação *</label>
+                    <input type="text" th:field="*{stationCode}" placeholder="Ex: ST-005" required/>
+                </div>
+                <div class="form-group">
+                    <label>Nome *</label>
+                    <input type="text" th:field="*{name}" placeholder="Ex: Estação Norte" required/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Localização</label>
+                <input type="text" th:field="*{location}" placeholder="Ex: Setor Norte - Unidade A"/>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Latitude</label>
+                    <input type="number" th:field="*{latitude}" step="0.000001" placeholder="-23.550520"/>
+                </div>
+                <div class="form-group">
+                    <label>Longitude</label>
+                    <input type="number" th:field="*{longitude}" step="0.000001" placeholder="-46.633308"/>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Status</label>
+                <select th:field="*{status}">
+                    <option value="ONLINE">Online</option>
+                    <option value="OFFLINE">Offline</option>
+                    <option value="MAINTENANCE">Manutenção</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <a th:href="@{/stations}" class="btn-outline">Cancelar</a>
+                <button type="submit" class="btn-primary">💾 Salvar Estação</button>
+            </div>
+        </form>
+    </div>
+
+</th:block>
+<th:block th:fragment="scripts-extra"></th:block>
+</body>
+</html>
